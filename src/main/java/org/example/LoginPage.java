@@ -4,7 +4,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -16,6 +15,7 @@ import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class LoginPage {
 
@@ -50,6 +50,9 @@ public class LoginPage {
         loginButton.setOnAction(e -> {
             String username = usernameField.getText();
             String password = passwordField.getText();
+
+            // Make the GET request to fetch user info by username
+            getUserInfo(username, errorLabel, primaryStage);
 
             // Make the POST request to the API
             makePostRequest(username, password, errorLabel, primaryStage);
@@ -89,6 +92,60 @@ public class LoginPage {
         return scene;
     }
 
+    // Make a GET request to fetch user information by username
+    private void getUserInfo(String username, Label errorLabel, Stage primaryStage) {
+        // API URL
+        String apiUrl = "https://chakrihub-1.onrender.com/User/search/" + username;
+
+        // Create the HttpRequest
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        // Send the request and handle the response
+        HttpClient client = HttpClient.newHttpClient();
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> {
+                    // Handle the API response
+                    if (response.statusCode() == 200) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response.body());
+
+                            int id = jsonResponse.getInt("id");
+                            String email = jsonResponse.getString("email");
+                            String profilpic = jsonResponse.getString("profilpic");
+                            String usernameResponse = jsonResponse.getString("username");
+                            Object candidate = jsonResponse.isNull("candidate") ? null : jsonResponse.get("candidate");
+                            Object recruter = jsonResponse.isNull("recruter") ? null : jsonResponse.get("recruter");
+                            JSONArray postsArray = jsonResponse.getJSONArray("posts");
+                            String[] posts = new String[postsArray.length()];
+                            for (int i = 0; i < postsArray.length(); i++) {
+                                posts[i] = postsArray.getString(i);
+                            }
+                            Object choose = jsonResponse.isNull("choose") ? null : jsonResponse.get("choose");
+
+                            // Store the user data in UserSessionManager
+                            com.example.UserSessionManager.setUserSession(id, usernameResponse, email, profilpic, candidate, recruter, posts, choose);
+
+                        } catch (Exception e) {
+                            errorLabel.setText("Error parsing user data!");
+                            errorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: red;");
+                        }
+                    } else {
+                        errorLabel.setText("User not found!");
+                        errorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: red;");
+                    }
+                })
+                .exceptionally(e -> {
+                    errorLabel.setText("Error fetching user data!");
+                    errorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: red;");
+                    return null;
+                });
+    }
+
+    // Handle Login Post request
     private void makePostRequest(String username, String password, Label errorLabel, Stage primaryStage) {
         // API URL
         String apiUrl = "https://chakrihub-1.onrender.com/Log";
@@ -111,10 +168,33 @@ public class LoginPage {
                 .thenAccept(response -> {
                     // Handle the API response
                     if (response.statusCode() == 200) {
-                        // Successful login
+                        // Parse the response JSON
+                        JSONObject responseJson = new JSONObject(response.body());
+
+                        // Extract values from the response
+                        String token = responseJson.getString("token");
+                        String userNameFromResponse = responseJson.getString("username"); // Changed from 'username' to 'userNameFromResponse'
+                        String email = responseJson.getString("email");
+                        JSONArray rolesArray = responseJson.getJSONArray("roles");
+
+                        // Convert roles JSON array to String[]
+                        String[] roles = new String[rolesArray.length()];
+                        for (int i = 0; i < rolesArray.length(); i++) {
+                            roles[i] = rolesArray.getString(i);
+                        }
+
+                        // Store the session data
+                        com.example.SessionManager.setSession(token, userNameFromResponse, email, roles);
+
+                        // Success message and possibly navigate to a new page
                         errorLabel.setText("Login Successful!");
                         errorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: green;");
-                        // Proceed to the next page or app logic
+
+                        // After successful login, route the user to the next page
+                        // Example: Go to the Dashboard or Home page
+                        // com.example.DashboardPage dashboardPage = new com.example.DashboardPage();
+                        // Scene dashboardScene = dashboardPage.createScene(primaryStage);
+                        // primaryStage.setScene(dashboardScene);
                     } else {
                         // Invalid login
                         errorLabel.setText("Invalid Username or Password!");
@@ -128,4 +208,6 @@ public class LoginPage {
                     return null;
                 });
     }
+
+
 }
