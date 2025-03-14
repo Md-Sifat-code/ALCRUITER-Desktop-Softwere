@@ -9,7 +9,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
 import java.util.List;
 
 public class HomePage {
@@ -37,21 +36,25 @@ public class HomePage {
         // ✅ Navbar (Keeping Your Design)
         HBox navbar = createNavbar(primaryStage, profilePic);
 
-        // ✅ Feed Section
-        VBox feedSection = new VBox();
-        feedSection.setPrefHeight(600);
-        feedSection.setAlignment(Pos.TOP_CENTER);
-        feedSection.setPadding(new Insets(20));
-        feedSection.setSpacing(20);
-        feedSection.setStyle("-fx-background-color: #f0f0f0;");
+        // ✅ Feed Section with ScrollPane
+        VBox feedContainer = new VBox();
+        feedContainer.setAlignment(Pos.TOP_CENTER);
+        feedContainer.setPadding(new Insets(20));
+        feedContainer.setSpacing(20);
+        feedContainer.setStyle("-fx-background-color: #f0f0f0;");
+
+        ScrollPane scrollPane = new ScrollPane(feedContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setStyle("-fx-background: transparent;");
 
         // ✅ Fetch & Display Posts
         com.example.PostService.fetchPosts().thenAccept(posts ->
-                Platform.runLater(() -> displayPosts(feedSection, posts))
+                Platform.runLater(() -> displayPosts(feedContainer, posts))
         );
 
         // ✅ Main Layout
-        VBox mainLayout = new VBox(navbar, feedSection);
+        VBox mainLayout = new VBox(navbar, scrollPane);
         mainLayout.setSpacing(10);
         mainLayout.setAlignment(Pos.TOP_CENTER);
 
@@ -59,51 +62,62 @@ public class HomePage {
     }
 
     // ✅ Display Posts in Feed Section
-    private void displayPosts(VBox feedSection, List<com.example.Posts> posts) {
-        feedSection.getChildren().clear();
+    private void displayPosts(VBox feedContainer, List<com.example.Posts> posts) {
+        feedContainer.getChildren().clear();
 
         if (posts.isEmpty()) {
-            feedSection.getChildren().add(new Label("No posts available."));
+            feedContainer.getChildren().add(new Label("No posts available."));
             return;
         }
 
         for (com.example.Posts post : posts) {
             VBox postCard = createPostCard(post);
-            feedSection.getChildren().add(postCard);
+            feedContainer.getChildren().add(postCard);
         }
     }
 
-    // ✅ Create Post Card UI
+    // ✅ Create Post Card UI with "Read More" Feature
     private VBox createPostCard(com.example.Posts post) {
         VBox postCard = new VBox();
         postCard.setStyle("-fx-background-color: white; -fx-padding: 10px; -fx-border-radius: 10px; -fx-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);");
         postCard.setSpacing(10);
         postCard.setMaxWidth(600);
 
-        // User Info Section
+        // ✅ User Info Section (Fix for Missing Data)
         HBox userSection = new HBox();
         userSection.setSpacing(10);
         userSection.setAlignment(Pos.CENTER_LEFT);
+
+        // Default Profile Pic
+        String defaultProfilePic = "https://via.placeholder.com/40";  // Placeholder image URL
 
         ImageView userImageView = new ImageView();
         userImageView.setFitWidth(40);
         userImageView.setFitHeight(40);
         userImageView.setStyle("-fx-border-radius: 50%;");
 
-        if (post.getUser() != null && post.getUser().getProfilePic() != null) {
-            try {
-                Image image = new Image(post.getUser().getProfilePic(), true);
-                userImageView.setImage(image);
-            } catch (Exception e) {
-                System.out.println("⚠️ Failed to load user profile image.");
-            }
+        com.example.User postUser = post.getUser(); // Get the user
+
+        // ✅ If user exists, use their profile pic, else use default
+        String userProfilePic = (postUser != null && postUser.getProfilePic() != null) ? postUser.getProfilePic() : defaultProfilePic;
+
+        try {
+            Image image = new Image(userProfilePic, true);
+            userImageView.setImage(image);
+        } catch (Exception e) {
+            System.out.println("⚠️ Failed to load user profile image. Using default.");
+            userImageView.setImage(new Image(defaultProfilePic, true));
         }
 
+        // ✅ User Details
         VBox userInfo = new VBox();
-        Label usernameLabel = new Label(post.getUser() != null ? post.getUser().getUsername() : "Unknown User");
+        String username = (postUser != null && postUser.getUsername() != null) ? postUser.getUsername() : "Unknown User";
+        String email = (postUser != null && postUser.getEmail() != null) ? postUser.getEmail() : "N/A";
+
+        Label usernameLabel = new Label(username);
         usernameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
-        Label emailLabel = new Label(post.getUser() != null ? post.getUser().getEmail() : "N/A");
+        Label emailLabel = new Label(email);
         emailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
 
         Label dateLabel = new Label(post.getCreatedDate());
@@ -112,12 +126,12 @@ public class HomePage {
         userInfo.getChildren().addAll(usernameLabel, emailLabel, dateLabel);
         userSection.getChildren().addAll(userImageView, userInfo);
 
-        // Post Body
+        // ✅ Post Body
         Label postBody = new Label(post.getBody());
         postBody.setWrapText(true);
         postBody.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
 
-        // Post Image
+        // ✅ Post Image
         ImageView postImageView = new ImageView();
         postImageView.setFitWidth(600);
         postImageView.setPreserveRatio(true);
@@ -131,10 +145,29 @@ public class HomePage {
             }
         }
 
-        // Add elements to post card
+        // ✅ Add everything to post card
         postCard.getChildren().addAll(userSection, postBody, postImageView);
-
         return postCard;
+    }
+
+
+    // ✅ Helper Method to Limit Text to 4 Lines
+    private String getShortText(String text, int lines) {
+        String[] words = text.split(" ");
+        StringBuilder shortText = new StringBuilder();
+        int wordCount = 0;
+
+        for (String word : words) {
+            shortText.append(word).append(" ");
+            wordCount++;
+
+            if (wordCount >= lines * 10) {  // Approximate words per line
+                shortText.append("...");
+                break;
+            }
+        }
+
+        return shortText.toString();
     }
 
     // ✅ Navbar (Keeping Your Existing Design)
@@ -164,20 +197,6 @@ public class HomePage {
             }
         }
 
-        ContextMenu profileMenu = new ContextMenu();
-        MenuItem profileOption = new MenuItem("Profile");
-        MenuItem logoutOption = new MenuItem("Logout");
-
-        profileOption.setOnAction(e -> System.out.println("👤 Navigating to Profile Page..."));
-        logoutOption.setOnAction(e -> {
-            System.out.println("🔴 Logging out...");
-            com.example.SessionManager.clearSession();
-            navigateToLogin(primaryStage);
-        });
-
-        profileMenu.getItems().addAll(profileOption, logoutOption);
-        profileImageView.setOnMouseClicked(e -> profileMenu.show(profileImageView, e.getScreenX(), e.getScreenY()));
-
         HBox navBox = new HBox(20, feedButton, notificationButton, matchButton, profileImageView);
         navBox.setAlignment(Pos.CENTER_RIGHT);
         navBox.setPadding(new Insets(10));
@@ -196,11 +215,5 @@ public class HomePage {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;");
         return button;
-    }
-
-    private void navigateToLogin(Stage primaryStage) {
-        System.out.println("🔵 Navigating to Login Page...");
-        Scene loginScene = new com.example.LoginPage().createScene(primaryStage);
-        primaryStage.setScene(loginScene);
     }
 }
