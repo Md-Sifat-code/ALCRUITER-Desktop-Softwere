@@ -42,10 +42,8 @@ public class SessionManager {
         roles = null;
     }
 
-    // Check if there is a session
+    // Check if user is logged in
     public static boolean isLoggedIn() {
         return token != null && !token.isEmpty();
     }
-
-
 }
