@@ -19,16 +19,31 @@ public class UserSessionManager {
         String apiUrl = "https://chakrihub-mhh5.onrender.com/User/search/" + username;
         System.out.println("🔵 Fetching user data from: " + apiUrl);
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(apiUrl)).header("Content-Type", "application/json").GET().build();
-        HttpClient client = HttpClient.newHttpClient();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
 
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
             if (response.statusCode() == 200) {
-                user = new com.example.User(new JSONObject(response.body()));
+                JSONObject jsonResponse = new JSONObject(response.body());
+                System.out.println("📥 User Data Received: " + jsonResponse.toString(2)); // Debugging
+                user = new com.example.User(jsonResponse);
                 System.out.println("✅ User Data Stored: " + user.getUsername());
+            } else {
+                System.out.println("❌ Failed to fetch user data. HTTP Status: " + response.statusCode());
             }
-        });
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Error fetching user data: " + e.getMessage());
+        }
     }
 
-    public static com.example.User getUser() { return user; }
+    public static com.example.User getUser() {
+        return user;
+    }
 }

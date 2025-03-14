@@ -1,6 +1,9 @@
 package com.example;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class User {
     private int id;
@@ -9,11 +12,11 @@ public class User {
     private String email;
     private Object candidate;
     private Object recruter;
-    private String[] posts;
+    private List<com.example.Post> posts; // Changed from String[] to List<Post>
     private String choose;
 
     // Constructor for direct assignment
-    public User(int id, String username, String profilpic, String email, Object candidate, Object recruter, String[] posts, String choose) {
+    public User(int id, String username, String profilpic, String email, Object candidate, Object recruter, List<com.example.Post> posts, String choose) {
         this.id = id;
         this.username = username;
         this.profilpic = profilpic;
@@ -29,11 +32,19 @@ public class User {
         this.id = jsonObject.getInt("id");
         this.username = jsonObject.getString("username");
         this.profilpic = jsonObject.optString("profilpic", null);
-        this.email = jsonObject.getString("email");
+        this.email = jsonObject.optString("email", "N/A");
         this.candidate = jsonObject.isNull("candidate") ? null : jsonObject.get("candidate");
         this.recruter = jsonObject.isNull("recruter") ? null : jsonObject.get("recruter");
-        this.posts = jsonObject.isNull("posts") ? new String[0] : jsonObject.getJSONArray("posts").toList().toArray(new String[0]);
-        this.choose = jsonObject.isNull("choose") ? null : jsonObject.getString("choose");
+        this.choose = jsonObject.optString("choose", null);
+
+        // ✅ Fixing the posts issue
+        this.posts = new ArrayList<>();
+        if (jsonObject.has("posts") && !jsonObject.isNull("posts")) {
+            JSONArray postsArray = jsonObject.getJSONArray("posts");
+            for (int i = 0; i < postsArray.length(); i++) {
+                this.posts.add(new com.example.Post(postsArray.getJSONObject(i))); // Convert to Post object
+            }
+        }
     }
 
     public int getId() { return id; }
@@ -42,10 +53,9 @@ public class User {
     public String getEmail() { return email; }
     public Object getCandidate() { return candidate; }
     public Object getRecruter() { return recruter; }
-    public String[] getPosts() { return posts; }
+    public List<com.example.Post> getPosts() { return posts; } // Changed return type
     public String getChoose() { return choose; }
 
-    // Fixed getProfilePic() method
     public String getProfilePic() {
         return profilpic;
     }
