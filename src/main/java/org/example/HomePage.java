@@ -240,6 +240,15 @@ public class HomePage {
     private Button createNavButton(String text, Stage primaryStage) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;");
+
+        // ✅ Add Navigation to JobsPage
+        if (text.equals("Match")) {
+            button.setOnAction(e -> {
+                primaryStage.setScene(new com.example.JobsPage().createScene(primaryStage));
+            });
+        }
+
         return button;
     }
+
 }
