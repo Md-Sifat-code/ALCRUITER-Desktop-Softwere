@@ -35,12 +35,16 @@ public class SessionManager {
     }
 
     // Clear the session
+    // Clear the session
     public static void clearSession() {
+        System.out.println("🗑️ Clearing session data...");
         token = null;
         username = null;
         email = null;
         roles = null;
+        System.out.println("✅ Session cleared successfully.");
     }
+
 
     // Check if user is logged in
     public static boolean isLoggedIn() {

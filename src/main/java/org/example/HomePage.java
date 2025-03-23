@@ -170,7 +170,6 @@ public class HomePage {
         return shortText.toString();
     }
 
-    // ✅ Navbar (Keeping Your Existing Design)
     private HBox createNavbar(Stage primaryStage, String profilePic) {
         Label logoLabel = new Label("AL CRUITER");
         logoLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff;");
@@ -197,6 +196,30 @@ public class HomePage {
             }
         }
 
+        // ✅ Dropdown Menu for Profile Image
+        ContextMenu profileMenu = new ContextMenu();
+        MenuItem profileItem = new MenuItem("Profile");
+        MenuItem logoutItem = new MenuItem("Logout");
+
+        profileItem.setOnAction(e -> {
+            com.example.User user = com.example.UserSessionManager.getUser();
+            if (user != null && user.getChoose() != null) {
+                primaryStage.setScene(new com.example.UserProfilePage().createScene(primaryStage));  // ✅ Go to Profile Page
+            } else {
+                primaryStage.setScene(new com.example.RolechoosePage().createScene(primaryStage));  // ✅ Go to Role Choose Page
+            }
+        });
+
+        logoutItem.setOnAction(e -> {
+            System.out.println("🔴 Logging out...");
+            com.example.SessionManager.clearSession();  // ✅ Clear LocalStorage
+            primaryStage.setScene(new com.example.LoginPage().createScene(primaryStage));  // ✅ Redirect to Login
+        });
+
+        profileMenu.getItems().addAll(profileItem, logoutItem);
+
+        profileImageView.setOnMouseClicked(e -> profileMenu.show(profileImageView, e.getScreenX(), e.getScreenY()));
+
         HBox navBox = new HBox(20, feedButton, notificationButton, matchButton, profileImageView);
         navBox.setAlignment(Pos.CENTER_RIGHT);
         navBox.setPadding(new Insets(10));
@@ -210,6 +233,9 @@ public class HomePage {
 
         return navbar;
     }
+
+
+
 
     private Button createNavButton(String text, Stage primaryStage) {
         Button button = new Button(text);

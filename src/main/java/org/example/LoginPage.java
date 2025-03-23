@@ -55,7 +55,23 @@ public class LoginPage {
             makePostRequest(username, password, primaryStage);
         });
 
-        VBox vbox = new VBox(15, titleLabel, usernameField, passwordField, loginButton);
+        // Hyperlink for Sign Up
+        Label signUpLabel = new Label("New to AL CRUITER?");
+        signUpLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: black;");
+
+        Hyperlink signUpLink = new Hyperlink("Sign Up");
+        signUpLink.setStyle("-fx-font-size: 14px; -fx-text-fill: #1E3A8A; -fx-font-weight: bold;");
+        signUpLink.setOnAction(e -> {
+            System.out.println("🔵 Navigating to SignUpPage...");
+            com.example.SignUpPage signUpPage = new com.example.SignUpPage();
+            Scene signUpScene = signUpPage.createScene(primaryStage);
+            primaryStage.setScene(signUpScene);
+        });
+
+        HBox signUpBox = new HBox(5, signUpLabel, signUpLink);
+        signUpBox.setAlignment(Pos.CENTER);
+
+        VBox vbox = new VBox(15, titleLabel, usernameField, passwordField, loginButton, signUpBox);
         vbox.setAlignment(Pos.CENTER);
         vbox.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 30px;");
         vbox.setPrefWidth(400);
@@ -152,5 +168,21 @@ public class LoginPage {
         com.example.HomePage homePage = new com.example.HomePage();
         Scene homeScene = homePage.createScene(primaryStage);
         primaryStage.setScene(homeScene);
+    }
+
+    // Logout Functionality
+    public static void logout(Stage primaryStage) {
+        System.out.println("🔴 Logging out...");
+
+        // Clear session data
+        com.example.SessionManager.clearSession();
+
+        // Redirect to Login Page
+        Platform.runLater(() -> {
+            System.out.println("🔵 Redirecting to LoginPage...");
+            com.example.LoginPage loginPage = new com.example.LoginPage();
+            Scene loginScene = loginPage.createScene(primaryStage);
+            primaryStage.setScene(loginScene);
+        });
     }
 }
