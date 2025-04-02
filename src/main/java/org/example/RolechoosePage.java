@@ -24,12 +24,12 @@ public class RolechoosePage {
 
         candidateButton.setOnAction(event -> {
             updateUserRole("Candidate");
-            primaryStage.setScene(new com.example.UserProfilePage().createScene(primaryStage));
+            primaryStage.setScene(new com.example.CandidateAdd().createScene(primaryStage));
         });
 
         recruiterButton.setOnAction(event -> {
             updateUserRole("Recruiter");
-            primaryStage.setScene(new com.example.UserProfilePage().createScene(primaryStage));
+            primaryStage.setScene(new com.example.RecruiterAdd().createScene(primaryStage));
         });
 
         VBox layout = new VBox(20, titleLabel, candidateButton, recruiterButton);
