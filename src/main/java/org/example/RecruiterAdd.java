@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.json.JSONObject;
@@ -27,16 +27,20 @@ public class RecruiterAdd {
     public Scene createScene(Stage primaryStage) {
         System.out.println("✅ RecruiterAdd Page Loaded");
 
-        // UI Fields
+        // UI Fields with better design
         TextField nameField = new TextField();
-        nameField.setPromptText("Name");
+        nameField.setPromptText("Enter Name");
+        nameField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         Button imageButton = new Button("Choose Cover Photo");
+        imageButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-border-radius: 5px;");
+
         Label imageLabel = new Label("No file selected");
+        imageLabel.setStyle("-fx-text-fill: #555555;");
 
         imageButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Choose Cover Photo");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
             coverPhotoFile = fileChooser.showOpenDialog(primaryStage);
             if (coverPhotoFile != null) {
                 imageLabel.setText("Selected: " + coverPhotoFile.getName());
@@ -45,22 +49,28 @@ public class RecruiterAdd {
 
         TextField companyNameField = new TextField();
         companyNameField.setPromptText("Company Name");
+        companyNameField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         TextArea companyDescField = new TextArea();
         companyDescField.setPromptText("Company Description");
         companyDescField.setPrefRowCount(3);
+        companyDescField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         TextField industryTypeField = new TextField();
         industryTypeField.setPromptText("Industry Type");
+        industryTypeField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         TextArea bioField = new TextArea();
         bioField.setPromptText("Bio");
         bioField.setPrefRowCount(3);
+        bioField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         TextField phoneNumberField = new TextField();
         phoneNumberField.setPromptText("Phone Number");
+        phoneNumberField.setStyle("-fx-padding: 10px; -fx-background-color: #f7f7f7; -fx-border-radius: 5px;");
 
         Button submitButton = new Button("Submit");
+        submitButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10px 20px; -fx-border-radius: 5px;");
 
         submitButton.setOnAction(event -> {
             com.example.User user = com.example.UserSessionManager.getUser();
@@ -89,7 +99,6 @@ public class RecruiterAdd {
                 addFormField.accept("bio", bioField.getText());
                 addFormField.accept("phoneNumber", phoneNumberField.getText());
                 addFormField.accept("userId", String.valueOf(user.getId()));
-
 
                 // Add file if present
                 if (coverPhotoFile != null) {
@@ -125,8 +134,7 @@ public class RecruiterAdd {
                         Scene homeScene = new com.example.HomePage().createScene(primaryStage);
                         primaryStage.setScene(homeScene);
                     });
-                }
-                else {
+                } else {
                     System.out.println("❌ Failed to add recruiter. Status: " + response.statusCode());
                     System.out.println(response.body());
                 }
@@ -136,21 +144,27 @@ public class RecruiterAdd {
             }
         });
 
-
-        VBox layout = new VBox(10,
-                new Label("Name:"), nameField,
-                imageButton, imageLabel,
+        // Main layout with professional padding and alignment
+        VBox layout = new VBox(15,
+                new Label("Recruiter Profile"),
+                nameField,
                 new Label("Company Name:"), companyNameField,
                 new Label("Company Description:"), companyDescField,
                 new Label("Industry Type:"), industryTypeField,
                 new Label("Bio:"), bioField,
                 new Label("Phone Number:"), phoneNumberField,
+                imageButton, imageLabel,
                 submitButton
         );
 
-        layout.setPadding(new Insets(20));
+        // Styling
+        layout.setPadding(new Insets(40, 20, 20, 20));
         layout.setAlignment(Pos.TOP_CENTER);
+        layout.setStyle("-fx-background-color: #ffffff;");
 
-        return new Scene(layout, 500, 600);
+        // Maximize the scene to full-screen
+        Scene scene = new Scene(layout, 800, 600);
+        primaryStage.setMaximized(true);  // Make it full screen
+        return scene;
     }
 }
