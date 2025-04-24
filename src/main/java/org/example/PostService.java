@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class PostService {
-    private static final String API_URL = "https://chakrihub-mhh5.onrender.com/Post";
+    private static final String API_URL = "https://chakrihub-r7m5.onrender.com/Post";
 
     public static CompletableFuture<List<com.example.Posts>> fetchPosts() {
         HttpClient client = HttpClient.newHttpClient();

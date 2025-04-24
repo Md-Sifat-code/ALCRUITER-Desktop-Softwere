@@ -114,7 +114,7 @@ public class CandidateAdd {
             int userId, Label errorLabel, Stage primaryStage
     ) throws IOException {
 
-        String apiUrl = "https://chakrihub-mhh5.onrender.com/api/candidates/add";
+        String apiUrl = "https://chakrihub-r7m5.onrender.com/api/candidates/add";
         String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
         HttpURLConnection connection = (HttpURLConnection) new URL(apiUrl).openConnection();
         connection.setDoOutput(true);

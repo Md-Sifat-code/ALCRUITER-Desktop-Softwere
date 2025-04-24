@@ -139,7 +139,7 @@ public class JobsPage {
 
     // ✅ Fetch Jobs from API
     private void fetchUserJobs(int userId, VBox jobFeedContainer) {
-        String apiUrl = "https://chakrihub-mhh5.onrender.com/Post/user/" + userId;
+        String apiUrl = "https://chakrihub-r7m5.onrender.com/Post/user/" + userId;
         System.out.println("🔵 Fetching jobs from: " + apiUrl);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -178,7 +178,7 @@ public class JobsPage {
 
     // ✅ Fetch Job Details for a specific job ID
     private void fetchJobDetails(int jobId, VBox jobFeedContainer) {
-        String jobDetailsUrl = "https://chakrihub-mhh5.onrender.com/Post/" + jobId;
+        String jobDetailsUrl = "https://chakrihub-r7m5.onrender.com/Post/" + jobId;
         System.out.println("🔵 Fetching job details from: " + jobDetailsUrl);
 
         HttpClient client = HttpClient.newHttpClient();
