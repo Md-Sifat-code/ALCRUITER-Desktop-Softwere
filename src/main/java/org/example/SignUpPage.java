@@ -123,7 +123,7 @@ public class SignUpPage {
     }
 
     private void sendPostRequest(String username, String email, String password, File file, Label errorLabel, Stage primaryStage) throws IOException {
-        String apiUrl = "https://chakrihub-r7m5.onrender.com/User/add";
+        String apiUrl = "https://chakrihub-1-sgbz.onrender.com/User/add";
 
         // Create boundary for multipart request
         String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";

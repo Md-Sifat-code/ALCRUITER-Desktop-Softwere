@@ -114,7 +114,7 @@ public class RecruiterAdd {
                 writer.flush();
 
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://chakrihub-r7m5.onrender.com/api/recruiters/add"))
+                        .uri(URI.create("https://chakrihub-1-sgbz.onrender.com/api/recruiters/add"))
                         .header("Content-Type", "multipart/form-data; boundary=" + boundary)
                         .POST(HttpRequest.BodyPublishers.ofByteArray(byteArrayOutputStream.toByteArray()))
                         .build();

@@ -86,7 +86,7 @@ public class LoginPage {
     private void makePostRequest(String username, String password, Stage primaryStage) {
         System.out.println("🔵 Starting Login Request...");
 
-        String apiUrl = "https://chakrihub-r7m5.onrender.com/Log";
+        String apiUrl = "https://chakrihub-1-sgbz.onrender.com/Log";
 
         JSONObject jsonPayload = new JSONObject();
         jsonPayload.put("username", username);

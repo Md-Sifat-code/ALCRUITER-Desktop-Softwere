@@ -18,7 +18,7 @@ public class RecruiterSessionManager {
             return;
         }
 
-        String apiUrl = "https://chakrihub-r7m5.onrender.com/User/search/" + username;
+        String apiUrl = "https://chakrihub-1-sgbz.onrender.com/User/search/" + username;
         System.out.println("🔵 Fetching recruiter data from: " + apiUrl);
 
         try {
