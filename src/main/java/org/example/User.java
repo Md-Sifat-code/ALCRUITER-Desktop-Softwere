@@ -37,7 +37,7 @@ public class User {
         this.recruter = jsonObject.isNull("recruter") ? null : jsonObject.get("recruter");
         this.choose = jsonObject.optString("choose", null);
 
-        // ✅ Fixing the posts issue
+        // Fixing the posts issue
         this.posts = new ArrayList<>();
         if (jsonObject.has("posts") && !jsonObject.isNull("posts")) {
             JSONArray postsArray = jsonObject.getJSONArray("posts");
@@ -60,4 +60,3 @@ public class User {
         return profilpic;
     }
 }
-//okay
