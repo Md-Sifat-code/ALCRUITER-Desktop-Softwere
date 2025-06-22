@@ -51,7 +51,6 @@ public class UserProfilePage {
 
         // Candidate Info
         if ("candidate".equalsIgnoreCase(user.getChoose()) && user.getCandidate() != null) {
-            // Fix: Convert JSONObject to Candidate
             com.example.Candidate c = new com.example.Candidate((org.json.JSONObject) user.getCandidate());
 
             if (c.getCoverPic() != null && !c.getCoverPic().isEmpty()) {
@@ -79,7 +78,6 @@ public class UserProfilePage {
 
         // Recruiter Info
         else if ("recruter".equalsIgnoreCase(user.getChoose()) && user.getRecruter() != null) {
-            // Fix: Convert JSONObject to Recruiter
             com.example.Recruiter r = new com.example.Recruiter((org.json.JSONObject) user.getRecruter());
 
             if (r.getCoverPhoto() != null && !r.getCoverPhoto().isEmpty()) {
@@ -98,6 +96,12 @@ public class UserProfilePage {
                     new Label("Company Description: " + r.getCompanyDiscription()),
                     new Label("Bio: " + r.getBio())
             );
+
+            // Add Recruitment Button
+            Button addRecruitmentButton = new Button("➕ Add Recruitment");
+            addRecruitmentButton.setOnAction(e ->
+                    primaryStage.setScene(new com.example.AddRecruitmentPage().createScene(primaryStage)));
+            layout.getChildren().add(addRecruitmentButton);
         }
 
         layout.getChildren().add(new Separator());

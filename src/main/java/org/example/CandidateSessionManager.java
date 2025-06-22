@@ -17,7 +17,7 @@ public class CandidateSessionManager {
             return;
         }
 
-        String apiUrl = "https://chakrihub-1-sgbz.onrender.com/User/search/" + username;
+        String apiUrl = "https://chakrihub-1-cilx.onrender.com/User/search/" + username;
         System.out.println("🔵 Fetching candidate data from: " + apiUrl);
 
         try {

@@ -139,7 +139,7 @@ public class JobsPage {
 
     // ✅ Fetch Jobs from API
     private void fetchUserJobs(int userId, VBox jobFeedContainer) {
-        String apiUrl = "https://chakrihub-1-sgbz.onrender.com/Post/user/" + userId;
+        String apiUrl = "https://chakrihub-1-cilx.onrender.com/Post/user/" + userId;
         System.out.println("🔵 Fetching jobs from: " + apiUrl);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -178,7 +178,7 @@ public class JobsPage {
 
     // ✅ Fetch Job Details for a specific job ID
     private void fetchJobDetails(int jobId, VBox jobFeedContainer) {
-        String jobDetailsUrl = "https://chakrihub-1-sgbz.onrender.com/Post/" + jobId;
+        String jobDetailsUrl = "https://chakrihub-1-cilx.onrender.com/Post/" + jobId;
         System.out.println("🔵 Fetching job details from: " + jobDetailsUrl);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -280,6 +280,17 @@ public class JobsPage {
 
         // ✅ Add elements to job card
         jobCard.getChildren().addAll(recruiterInfoBox, descLabel, jobImageView, new Label("Posted on: " + createdDate));
+        // ✅ Match Candidates Button
+        Button matchBtn = new Button("🎯 Match Candidates");
+        matchBtn.setStyle("-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold;");
+        int finalJobId = jobObject.getInt("id"); // capture inside lambda
+        matchBtn.setOnAction(e -> {
+            Stage currentStage = (Stage) jobFeedContainer.getScene().getWindow();
+            currentStage.setScene(new com.example.MatchCandidatesPage().createScene(currentStage, finalJobId));
+        });
+
+// Add button to job card
+        jobCard.getChildren().add(matchBtn);
 
         jobFeedContainer.getChildren().add(jobCard);
     }
