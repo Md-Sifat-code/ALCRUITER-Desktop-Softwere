@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -31,12 +32,12 @@ public class MatchCandidatesPage {
         ScrollPane scrollPane = new ScrollPane(layout);
         scrollPane.setFitToWidth(true);
 
-        fetchMatches(postId, layout);
+        fetchMatches(postId, layout, primaryStage);
 
         return new Scene(scrollPane, 700, 600);
     }
 
-    private void fetchMatches(int postId, VBox container) {
+    private void fetchMatches(int postId, VBox container, Stage stage) {
         String url = "https://chakrihub-1-cilx.onrender.com/api/v1/recruiter/suggestions/" + postId;
         System.out.println("🔎 Fetching matches from: " + url);
 
@@ -49,7 +50,7 @@ public class MatchCandidatesPage {
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenAccept(response -> Platform.runLater(() -> displayMatches(response, container)))
+                .thenAccept(response -> Platform.runLater(() -> displayMatches(response, container, stage)))
                 .exceptionally(e -> {
                     Platform.runLater(() -> container.getChildren().add(new Label("❌ Failed to fetch matches.")));
                     System.out.println("❌ Error: " + e.getMessage());
@@ -57,7 +58,7 @@ public class MatchCandidatesPage {
                 });
     }
 
-    private void displayMatches(String jsonResponse, VBox container) {
+    private void displayMatches(String jsonResponse, VBox container, Stage stage) {
         JSONArray array = new JSONArray(jsonResponse);
 
         if (array.isEmpty()) {
@@ -70,6 +71,7 @@ public class MatchCandidatesPage {
 
             String candidateName = obj.optString("candidateName", "N/A");
             String username = obj.optString("username", "N/A");
+            String candidateId = obj.optString("candidateId", "0");
             double matchPercentage = obj.optDouble("matchPercentage", 0);
             JSONArray skillsArray = obj.optJSONArray("matchedSkills");
 
@@ -89,13 +91,28 @@ public class MatchCandidatesPage {
                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
             """);
 
-            Label nameLabel = new Label("👤 " + candidateName + " (@"+username+")");
+            Label nameLabel = new Label("👤 " + candidateName + " (@" + username + ")");
             nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
             Label matchLabel = new Label("Match %: " + matchPercentage);
             Label skillsLabel = new Label("Matched Skills: " + skillsList);
 
-            card.getChildren().addAll(nameLabel, matchLabel, skillsLabel);
+            Button matchButton = new Button("✅ Ask CV");
+            matchButton.setStyle("""
+                -fx-background-color: #4CAF50;
+                -fx-text-fill: white;
+                -fx-padding: 5 10;
+                -fx-font-size: 13px;
+                -fx-border-radius: 4;
+            """);
+
+            matchButton.setOnAction(e -> {
+                com.example.AskCV askCV = new com.example.AskCV();
+                Scene askCVScene = askCV.createScene(stage, candidateId, candidateName);
+                stage.setScene(askCVScene);
+            });
+
+            card.getChildren().addAll(nameLabel, matchLabel, skillsLabel, matchButton);
             container.getChildren().add(card);
         }
     }
