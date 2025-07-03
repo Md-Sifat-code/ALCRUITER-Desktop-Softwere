@@ -8,6 +8,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
         // Create an instance of LoginPage
         com.example.LoginPage loginPage = new com.example.LoginPage();
 

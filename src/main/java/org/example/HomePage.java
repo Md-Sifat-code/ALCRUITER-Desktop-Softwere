@@ -8,7 +8,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+
 import java.util.List;
 
 public class HomePage {
@@ -16,9 +18,7 @@ public class HomePage {
     public Scene createScene(Stage primaryStage) {
         System.out.println("✅ HomePage Loaded");
 
-        // ✅ Get user data
         com.example.User user = com.example.UserSessionManager.getUser();
-
         if (user == null) {
             System.out.println("⚠️ User data not found. Fetching again...");
             com.example.UserSessionManager.fetchUserData();
@@ -33,10 +33,8 @@ public class HomePage {
         System.out.println("🔹 Email: " + email);
         System.out.println("🔹 Retrieved Profile Pic: " + profilePic);
 
-        // ✅ Navbar (Keeping Your Design)
         HBox navbar = createNavbar(primaryStage, profilePic);
 
-        // ✅ Feed Section with ScrollPane
         VBox feedContainer = new VBox();
         feedContainer.setAlignment(Pos.TOP_CENTER);
         feedContainer.setPadding(new Insets(20));
@@ -48,12 +46,10 @@ public class HomePage {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setStyle("-fx-background: transparent;");
 
-        // ✅ Fetch & Display Posts
         com.example.PostService.fetchPosts().thenAccept(posts ->
                 Platform.runLater(() -> displayPosts(feedContainer, posts))
         );
 
-        // ✅ Main Layout
         VBox mainLayout = new VBox(navbar, scrollPane);
         mainLayout.setSpacing(10);
         mainLayout.setAlignment(Pos.TOP_CENTER);
@@ -61,7 +57,6 @@ public class HomePage {
         return new Scene(mainLayout, 800, 600);
     }
 
-    // ✅ Display Posts in Feed Section
     private void displayPosts(VBox feedContainer, List<com.example.Posts> posts) {
         feedContainer.getChildren().clear();
 
@@ -76,62 +71,71 @@ public class HomePage {
         }
     }
 
-    // ✅ Create Post Card UI with "Read More" Feature
     private VBox createPostCard(com.example.Posts post) {
         VBox postCard = new VBox();
-        postCard.setStyle("-fx-background-color: white; -fx-padding: 10px; -fx-border-radius: 10px; -fx-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);");
+        postCard.setStyle("-fx-background-color: white; -fx-padding: 10px;");
         postCard.setSpacing(10);
         postCard.setMaxWidth(600);
 
-        // ✅ User Info Section (Fix for Missing Data)
         HBox userSection = new HBox();
         userSection.setSpacing(10);
         userSection.setAlignment(Pos.CENTER_LEFT);
 
-        // Default Profile Pic
-        String defaultProfilePic = "https://via.placeholder.com/40";  // Placeholder image URL
-
+        String defaultProfilePic = "https://via.placeholder.com/40";
         ImageView userImageView = new ImageView();
         userImageView.setFitWidth(40);
         userImageView.setFitHeight(40);
-        userImageView.setStyle("-fx-border-radius: 50%;");
 
-        com.example.User postUser = post.getUser(); // Get the user
+        // Clip the user image to a circle
+        Circle clip = new Circle(20, 20, 20);
+        userImageView.setClip(clip);
 
-        // ✅ If user exists, use their profile pic, else use default
+        com.example.User postUser = post.getUser();
         String userProfilePic = (postUser != null && postUser.getProfilePic() != null) ? postUser.getProfilePic() : defaultProfilePic;
 
         try {
             Image image = new Image(userProfilePic, true);
+            image.errorProperty().addListener((obs, wasError, isError) -> {
+                if (isError) {
+                    System.out.println("⚠️ Failed to load user profile image from URL: " + userProfilePic);
+                    userImageView.setImage(new Image(defaultProfilePic, true));
+                }
+            });
             userImageView.setImage(image);
         } catch (Exception e) {
             System.out.println("⚠️ Failed to load user profile image. Using default.");
             userImageView.setImage(new Image(defaultProfilePic, true));
         }
 
-        // ✅ User Details
+// ➕ Add click-handler here:
+        userImageView.setOnMouseClicked(event -> {
+            Stage stage = (Stage) userImageView.getScene().getWindow();
+            int receiverId = postUser.getId();
+            com.example.ChatClientWindow chatClient = new com.example.ChatClientWindow();
+            Scene chatScene = chatClient.createScene(stage, receiverId);
+            stage.setScene(chatScene);
+            stage.setTitle("Chat with " + postUser.getUsername());
+            chatClient.connectWebSocket();
+        });
+
         VBox userInfo = new VBox();
         String username = (postUser != null && postUser.getUsername() != null) ? postUser.getUsername() : "Unknown User";
         String email = (postUser != null && postUser.getEmail() != null) ? postUser.getEmail() : "N/A";
 
         Label usernameLabel = new Label(username);
         usernameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-
         Label emailLabel = new Label(email);
         emailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
-
         Label dateLabel = new Label(post.getCreatedDate());
         dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #777;");
 
         userInfo.getChildren().addAll(usernameLabel, emailLabel, dateLabel);
         userSection.getChildren().addAll(userImageView, userInfo);
 
-        // ✅ Post Body
         Label postBody = new Label(post.getBody());
         postBody.setWrapText(true);
         postBody.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
 
-        // ✅ Post Image
         ImageView postImageView = new ImageView();
         postImageView.setFitWidth(600);
         postImageView.setPreserveRatio(true);
@@ -139,41 +143,24 @@ public class HomePage {
         if (post.getPhoto() != null) {
             try {
                 Image postImage = new Image(post.getPhoto(), true);
+                postImage.errorProperty().addListener((obs, wasError, isError) -> {
+                    if (isError) {
+                        System.out.println("⚠️ Failed to load post image from URL: " + post.getPhoto());
+                    }
+                });
                 postImageView.setImage(postImage);
             } catch (Exception e) {
                 System.out.println("⚠️ Failed to load post image.");
             }
         }
 
-        // ✅ Add everything to post card
         postCard.getChildren().addAll(userSection, postBody, postImageView);
         return postCard;
-    }
-
-
-    // ✅ Helper Method to Limit Text to 4 Lines
-    private String getShortText(String text, int lines) {
-        String[] words = text.split(" ");
-        StringBuilder shortText = new StringBuilder();
-        int wordCount = 0;
-
-        for (String word : words) {
-            shortText.append(word).append(" ");
-            wordCount++;
-
-            if (wordCount >= lines * 10) {  // Approximate words per line
-                shortText.append("...");
-                break;
-            }
-        }
-
-        return shortText.toString();
     }
 
     private HBox createNavbar(Stage primaryStage, String profilePic) {
         Label logoLabel = new Label("AL CRUITER");
         logoLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #fff;");
-
         HBox logoBox = new HBox(logoLabel);
         logoBox.setAlignment(Pos.CENTER_LEFT);
         logoBox.setPadding(new Insets(10));
@@ -182,21 +169,40 @@ public class HomePage {
         Button notificationButton = createNavButton("Notifications", primaryStage);
         Button matchButton = createNavButton("Match", primaryStage);
 
+        Button chatButton = new Button("Live Chat");
+        chatButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;");
+        chatButton.setOnAction(e -> {
+            Platform.runLater(() -> {
+                try {
+                    new com.example.JavaFXWebSocketClient().start(new Stage());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        });
+
         ImageView profileImageView = new ImageView();
         profileImageView.setFitWidth(40);
         profileImageView.setFitHeight(40);
-        profileImageView.setStyle("-fx-border-radius: 50%;");
+
+        // Clip profile image to circle
+        Circle clip = new Circle(20, 20, 20);
+        profileImageView.setClip(clip);
 
         if (profilePic != null && !profilePic.isEmpty()) {
             try {
                 Image image = new Image(profilePic, true);
+                image.errorProperty().addListener((obs, wasError, isError) -> {
+                    if (isError) {
+                        System.out.println("⚠️ Failed to load profile image from URL: " + profilePic);
+                    }
+                });
                 profileImageView.setImage(image);
             } catch (Exception e) {
                 System.out.println("⚠️ Failed to load profile image.");
             }
         }
 
-        // ✅ Dropdown Menu for Profile Image
         ContextMenu profileMenu = new ContextMenu();
         MenuItem profileItem = new MenuItem("Profile");
         MenuItem logoutItem = new MenuItem("Logout");
@@ -204,29 +210,27 @@ public class HomePage {
         profileItem.setOnAction(e -> {
             com.example.User user = com.example.UserSessionManager.getUser();
             if (user != null && user.getChoose() != null) {
-                primaryStage.setScene(new com.example.UserProfilePage().createScene(primaryStage));  // ✅ Go to Profile Page
+                primaryStage.setScene(new com.example.UserProfilePage().createScene(primaryStage));
             } else {
-                primaryStage.setScene(new com.example.RolechoosePage().createScene(primaryStage));  // ✅ Go to Role Choose Page
+                primaryStage.setScene(new com.example.RolechoosePage().createScene(primaryStage));
             }
         });
 
         logoutItem.setOnAction(e -> {
-            System.out.println("🔴 Logging out...");
-            com.example.SessionManager.clearSession();  // ✅ Clear LocalStorage
-            primaryStage.setScene(new com.example.LoginPage().createScene(primaryStage));  // ✅ Redirect to Login
+            com.example.SessionManager.clearSession();
+            primaryStage.setScene(new com.example.LoginPage().createScene(primaryStage));
         });
 
         profileMenu.getItems().addAll(profileItem, logoutItem);
-
         profileImageView.setOnMouseClicked(e -> profileMenu.show(profileImageView, e.getScreenX(), e.getScreenY()));
 
-        HBox navBox = new HBox(20, feedButton, notificationButton, matchButton, profileImageView);
+        HBox navBox = new HBox(20, feedButton, notificationButton, matchButton, chatButton, profileImageView);
         navBox.setAlignment(Pos.CENTER_RIGHT);
         navBox.setPadding(new Insets(10));
 
         HBox navbar = new HBox(logoBox, navBox);
-        navbar.setHgrow(logoBox, Priority.ALWAYS);
-        navbar.setHgrow(navBox, Priority.ALWAYS);
+        HBox.setHgrow(logoBox, Priority.ALWAYS);
+        HBox.setHgrow(navBox, Priority.ALWAYS);
         navbar.setAlignment(Pos.CENTER);
         navbar.setSpacing(200);
         navbar.setStyle("-fx-background-color: #1E3A8A; -fx-padding: 10px;");
@@ -234,21 +238,12 @@ public class HomePage {
         return navbar;
     }
 
-
-
-
     private Button createNavButton(String text, Stage primaryStage) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;");
-
-        // ✅ Add Navigation to JobsPage
         if (text.equals("Match")) {
-            button.setOnAction(e -> {
-                primaryStage.setScene(new com.example.JobsPage().createScene(primaryStage));
-            });
+            button.setOnAction(e -> primaryStage.setScene(new com.example.JobsPage().createScene(primaryStage)));
         }
-
         return button;
     }
-
 }

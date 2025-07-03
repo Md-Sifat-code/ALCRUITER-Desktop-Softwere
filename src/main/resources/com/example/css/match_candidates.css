@@ -1,0 +1,57 @@
+/* match_candidates.css */
+
+.root {
+    -fx-background-color: #f4f6f8;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.title-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 15 0 25 0;
+}
+
+.card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);
+}
+
+.card-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.card-label.bold {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+.ask-cv-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+}
+
+.back-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-font-size: 13px;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+}
+.back-button:hover {
+    -fx-background-color: #2980b9;
+}

@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -13,15 +14,33 @@ public class RolechoosePage {
     public Scene createScene(Stage primaryStage) {
         System.out.println("✅ RolechoosePage Loaded");
 
+        // Title
         Label titleLabel = new Label("Choose Your Role");
-        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        titleLabel.getStyleClass().add("title-label");
 
+        // Role Buttons
         Button candidateButton = new Button("Candidate");
+        candidateButton.getStyleClass().add("role-button");
+
         Button recruiterButton = new Button("Recruiter");
+        recruiterButton.getStyleClass().add("role-button");
 
-        candidateButton.setStyle("-fx-font-size: 16px; -fx-padding: 10px;");
-        recruiterButton.setStyle("-fx-font-size: 16px; -fx-padding: 10px;");
+        // Back Button
+        Button backButton = new Button("⬅ Back");
+        backButton.getStyleClass().add("back-button");
+        backButton.setOnAction(e -> {
+            primaryStage.setScene(new com.example.LoginPage().createScene(primaryStage)); // Or wherever you want to go back
+        });
 
+        HBox buttonBox = new HBox(20, candidateButton, recruiterButton);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        VBox layout = new VBox(20, titleLabel, buttonBox, backButton);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(30));
+        layout.getStyleClass().add("role-choose-root");
+
+        // Button Actions
         candidateButton.setOnAction(event -> {
             updateUserRole("Candidate");
             primaryStage.setScene(new com.example.CandidateAdd().createScene(primaryStage));
@@ -32,17 +51,26 @@ public class RolechoosePage {
             primaryStage.setScene(new com.example.RecruiterAdd().createScene(primaryStage));
         });
 
-        VBox layout = new VBox(20, titleLabel, candidateButton, recruiterButton);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
+        Scene scene = new Scene(layout, 450, 300);
 
-        return new Scene(layout, 400, 300);
+        // Load CSS
+        try {
+            var css = getClass().getResource("css/rolechoose.css");
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            } else {
+                System.err.println("❌ Stylesheet 'css/rolechoose.css' not found.");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error loading CSS: " + e.getMessage());
+        }
+
+        return scene;
     }
 
     private void updateUserRole(String role) {
         System.out.println("🔹 Role Selected: " + role);
 
-        // ✅ Update user role in session
         com.example.User user = com.example.UserSessionManager.getUser();
         if (user != null) {
             user = new com.example.User(user.getId(), user.getUsername(), user.getProfilpic(),

@@ -1,0 +1,62 @@
+.chat-root {
+    -fx-background-color: #f9f9f9;
+    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.top-bar {
+    -fx-background-color: #2a9df4;
+    -fx-padding: 10;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.back-button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #2a9df4;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.back-button:hover {
+    -fx-background-color: #d0e7ff;
+}
+
+.username-label {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+}
+
+.user-message {
+    -fx-background-color: #dcf8c6;
+    -fx-padding: 10;
+    -fx-background-radius: 15;
+    -fx-max-width: 400px;
+    -fx-font-size: 14px;
+}
+
+.bot-message {
+    -fx-background-color: #ececec;
+    -fx-padding: 10;
+    -fx-background-radius: 15;
+    -fx-max-width: 400px;
+    -fx-font-size: 14px;
+}
+
+.send-button {
+    -fx-background-color: #2a9df4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 6 20;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: #1b6edc;
+}

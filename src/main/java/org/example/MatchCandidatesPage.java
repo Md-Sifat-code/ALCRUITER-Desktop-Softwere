@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.json.JSONArray;
@@ -23,22 +24,48 @@ public class MatchCandidatesPage {
         VBox layout = new VBox(20);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.TOP_CENTER);
+        layout.getStyleClass().add("root");
 
         Label title = new Label("🎯 Matched Candidates for Post ID: " + postId);
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        title.getStyleClass().add("title-label");
 
         layout.getChildren().add(title);
 
+        // ScrollPane for dynamic cards
         ScrollPane scrollPane = new ScrollPane(layout);
         scrollPane.setFitToWidth(true);
 
+        VBox mainContainer = new VBox(10);
+        mainContainer.setAlignment(Pos.CENTER);
+        mainContainer.setPadding(new Insets(15));
+        mainContainer.getChildren().add(scrollPane);
+
+        // ✅ Back Button Section
+        Button backButton = new Button("⬅ Back");
+        backButton.getStyleClass().add("back-button");
+        backButton.setOnAction(e -> {
+            primaryStage.setScene(new com.example.JobsPage().createScene(primaryStage));
+        });
+
+        mainContainer.getChildren().add(backButton);
+
+        Scene scene = new Scene(mainContainer, 700, 600);
+
+        // Load CSS
+        java.net.URL stylesheetURL = getClass().getResource("css/match_candidates.css");
+        if (stylesheetURL != null) {
+            scene.getStylesheets().add(stylesheetURL.toExternalForm());
+        } else {
+            System.err.println("❌ Error: Stylesheet 'css/match_candidates.css' not found. Check resources folder.");
+        }
+
         fetchMatches(postId, layout, primaryStage);
 
-        return new Scene(scrollPane, 700, 600);
+        return scene;
     }
 
     private void fetchMatches(int postId, VBox container, Stage stage) {
-        String url = "https://chakrihub-1-cilx.onrender.com/api/v1/recruiter/suggestions/" + postId;
+        String url = "https://chakrihub-0qv1.onrender.com/api/v1/recruiter/suggestions/" + postId;
         System.out.println("🔎 Fetching matches from: " + url);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -74,6 +101,7 @@ public class MatchCandidatesPage {
             String candidateId = obj.optString("candidateId", "0");
             double matchPercentage = obj.optDouble("matchPercentage", 0);
             JSONArray skillsArray = obj.optJSONArray("matchedSkills");
+            String cvSummary = obj.optString("cvSummery", "No summary provided.");
 
             StringBuilder skillsList = new StringBuilder();
             for (int j = 0; j < skillsArray.length(); j++) {
@@ -82,37 +110,44 @@ public class MatchCandidatesPage {
             }
 
             VBox card = new VBox(5);
-            card.setStyle("""
-                -fx-background-color: #fff;
-                -fx-padding: 15;
-                -fx-border-color: #ddd;
-                -fx-border-width: 1;
-                -fx-border-radius: 8;
-                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
-            """);
+            card.getStyleClass().add("card");
 
             Label nameLabel = new Label("👤 " + candidateName + " (@" + username + ")");
-            nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            nameLabel.getStyleClass().addAll("card-label", "bold");
 
             Label matchLabel = new Label("Match %: " + matchPercentage);
+            matchLabel.getStyleClass().add("card-label");
+
             Label skillsLabel = new Label("Matched Skills: " + skillsList);
+            skillsLabel.getStyleClass().add("card-label");
+
+            // ✅ CV Summary section
+            Label cvSummaryLabel = new Label("📄 CV Summary: " + cvSummary);
+            cvSummaryLabel.getStyleClass().add("card-label");
+            cvSummaryLabel.setWrapText(true); // in case summary is long
 
             Button matchButton = new Button("✅ Ask CV");
-            matchButton.setStyle("""
-                -fx-background-color: #4CAF50;
-                -fx-text-fill: white;
-                -fx-padding: 5 10;
-                -fx-font-size: 13px;
-                -fx-border-radius: 4;
-            """);
-
+            matchButton.getStyleClass().add("ask-cv-button");
             matchButton.setOnAction(e -> {
                 com.example.AskCV askCV = new com.example.AskCV();
                 Scene askCVScene = askCV.createScene(stage, candidateId, candidateName);
                 stage.setScene(askCVScene);
             });
 
-            card.getChildren().addAll(nameLabel, matchLabel, skillsLabel, matchButton);
+            Button chatButton = new Button("💬 Let's Chat");
+            chatButton.getStyleClass().add("chat-button");
+            chatButton.setOnAction(e -> {
+                com.example.JavaFXWebSocketClient chatClient = new com.example.JavaFXWebSocketClient();
+                Scene chatScene = chatClient.createScene(stage, username);
+                stage.setScene(chatScene);
+                stage.setTitle("Chat with @" + username);
+                chatClient.connectWebSocket();
+            });
+
+            HBox buttonsBox = new HBox(10, matchButton, chatButton);
+            buttonsBox.setAlignment(Pos.CENTER_LEFT);
+
+            card.getChildren().addAll(nameLabel, matchLabel, skillsLabel, cvSummaryLabel, buttonsBox);
             container.getChildren().add(card);
         }
     }

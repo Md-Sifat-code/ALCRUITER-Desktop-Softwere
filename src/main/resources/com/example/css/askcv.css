@@ -1,0 +1,81 @@
+.askcv-root {
+    -fx-background-color: #f7f9fc;
+}
+
+.top-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 0 1 0;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #007bff;
+    -fx-text-fill: #007bff;
+    -fx-padding: 6 12;
+    -fx-border-radius: 5;
+    -fx-font-size: 13px;
+}
+
+.back-button:hover {
+    -fx-background-color: #e7f1ff;
+}
+
+.chat-scroll {
+    -fx-background-color: transparent;
+}
+
+.chat-box {
+    -fx-padding: 10;
+}
+
+.input-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1 0 0 0;
+}
+
+.chat-input {
+    -fx-font-size: 14px;
+    -fx-padding: 8;
+    -fx-pref-width: 500px;
+}
+
+.send-button {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-font-size: 13px;
+    -fx-border-radius: 4;
+}
+
+.send-button:hover {
+    -fx-background-color: #218838;
+}
+
+.user-message {
+    -fx-background-color: #dcf8c6;
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 13px;
+    -fx-max-width: 400px;
+}
+
+.bot-message {
+    -fx-background-color: #eeeeee;
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 13px;
+    -fx-max-width: 400px;
+}
+.chat-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+    -fx-border-radius: 4;
+}
+
+.chat-button:hover {
+    -fx-background-color: #0056b3;
+}
